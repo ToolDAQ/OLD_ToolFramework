@@ -1,14 +1,14 @@
 #include <string>
 #include "ToolChain.h"
-#include "DummyTool.h"
+//#include "DummyTool.h"
 
 int main(int argc, char* argv[]){
 
-  std::string conffile;
-  if (argc==1)conffile="configfiles/Dummy/ToolChainConfig";
-  else conffile=argv[1];
+  std::string config_file;
+  if (argc==1)config_file="configfiles/Dummy/ToolChainConfig";
+  else config_file=argv[1];
 
-  ToolChain tools(conffile, argc, argv);
+  ToolChain tools(config_file, argc, argv);
 
 
   //DummyTool dummytool;    

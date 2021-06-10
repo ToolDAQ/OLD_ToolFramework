@@ -1,10 +1,17 @@
-CXXFLAGS=  -fPIC -O3 -Wpedantic # -g -DDEBUG
+CXXFLAGS=  -fPIC -O3 -Wpedantic 
+
+ifeq ($(MAKECMDGOALS),debug)
+CXXFLAGS+= -O1 -g -lSegFault -rdynamic -DDEBUG
+endif
+
 
 DataModelInclude =
 DataModelLib =
 
 MyToolsInclude =
 MyToolsLib =
+
+debug: all
 
 all: lib/libMyTools.so lib/libToolChain.so lib/libStore.so include/Tool.h lib/libDataModel.so lib/libLogging.so main
 
