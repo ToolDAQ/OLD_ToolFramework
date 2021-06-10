@@ -10,8 +10,6 @@
 #include "Store.h"
 #include "Logging.h"
 
-#include <zmq.hpp>
-
 /**
  * \class DataModel
  *
@@ -38,17 +36,8 @@ class DataModel {
   Store vars; ///< This Store can be used for any variables. It is an inefficent ascii based storage
   Logging *Log; ///< Log class pointer for use in Tools, it can be used to send messages which can have multiple error levels and destination end points
 
-  zmq::context_t* context; ///< ZMQ contex used for producing zmq sockets for inter thread,  process, or computer communication
-
-
-  //  bool (*Log)(std::string, int);
-
-  /*  
-  template<Type T>
-    struct Log {
-      typedef bool (*type)(T message,int verboselevel);
-    };
-  */
+  
+  
  private:
 
 

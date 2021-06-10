@@ -9,21 +9,13 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h> 
-
-
-#include <boost/uuid/uuid.hpp>            // uuid class
-#include <boost/uuid/uuid_generators.hpp> // generators
-#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/progress.hpp>
+#include <unistd.h>
 
 #include "Tool.h"
 #include "DataModel.h"
 #include "Logging.h"
-#include "zmq.hpp"
 #include "Factory.h"
 #include "Store.h"
-#include "ServiceDiscovery.h"
 
 /**
  * \struct ToolChainargs
@@ -38,8 +30,8 @@ struct ToolChainargs{
 
   ToolChainargs(){};
 
-  zmq::context_t* context; ///< ZMQ context used for creating sockets.
   bool *msgflag; ///< Message flag used to indiacte if a new interactive command has been submitted to the interactive thread and needs execution on the main thread. 
+  std::string command;
 
 };
 
@@ -70,7 +62,7 @@ class ToolChain{
      @param kick_sec The number of seconds to wait before removing a servic from the remote services list if no beacon received.
      @param IO_Threads The number of ZMQ IO threads to use (~1 per Gbps of traffic).
    */
-  ToolChain(int verbose=1, int errorlevel=0, std::string service="test", std::string logmode="Interactive", std::string log_local_path="./log",  std::string log_service="", int log_port=0, int pub_sec=5, int kick_sec=60, unsigned int IO_Threads=1); 
+  ToolChain(int verbose=1, int errorlevel=0, std::string logmode="Interactive", std::string log_local_path="./log"); 
   //verbosity: true= print out status messages , false= print only error messages;
   //errorlevels: 0= do not exit; error 1= exit if unhandeled error ; exit 2= exit on handeled and unhandeled errors; 
   ~ToolChain(); 
@@ -80,34 +72,15 @@ class ToolChain{
   int Finalise(); ///< Finalise all Tools in the ToolCahin sequentially. 
 
   void Interactive(); ///< Start interactive thread to accept commands and run ToolChain in interactive mode.
-  void Remote(int portnum, std::string SD_address="239.192.1.1", int SD_port=5000); ///< Run ToolChain in remote mode, where connands are received fomr network connections. @param portnum The port number to listen for remote connections on. @param SD_address The service discovery address to publish availability beacons for remote connections on. @param SD_port the multicast port to used for service discovery beacons
-
   DataModel m_data; ///< Direct access to transient data model class of the Tools in the ToolChain. This allows direct initialisation and copying of variables.
 
 private:
 
-  void Init(unsigned int IO_Threads);
+  void Init();
 
   static  void *InteractiveThread(void* arg);
   std::string ExecuteCommand(std::string connand);
-  void Remote();
 
-  /*
-  template <type T> bool Log(T message,int verboselevel=1){
-    if(m_verbose>0){
-      
-      if (m_logging=="Interactive" && verboselevel <= m_verbose)std::cout<<"["<<verboselevel<<"] "<<message<<std::endl;
-      
-    }
-  }
-  
-  
-  static  void *LogThread(void* arg);
-  */
-
-  // bool Log(std::string message, int messagelevel=1,bool verbose=true);
-
-   ServiceDiscovery *SD;
 
   //Tools configs and data
   std::vector<Tool*> m_tools;
@@ -118,16 +91,11 @@ private:
   std::ostream *out;
   
   //conf variables
-  boost::uuids::uuid m_UUID;
   int m_verbose;
   int m_errorlevel;
   std::string m_log_mode;
   std::string m_log_local_path;
-  std::string m_log_service;
-  int m_log_port;
-  std::string m_service;
   bool interactive;
-  bool remote;
   int Inline;
   bool m_recover;
     
@@ -141,15 +109,8 @@ private:
 
   //socket coms and threading variables
   pthread_t thread[2];
-  zmq::context_t *context;
-  int m_remoteport;
-  int m_multicastport;
-  std::string m_multicastaddress;
-  long msg_id;
-  int m_pub_sec;
-  int m_kick_sec;
-
   bool msgflag;
+
 };
 
 #endif
